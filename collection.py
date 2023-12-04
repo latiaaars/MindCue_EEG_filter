@@ -68,13 +68,13 @@ class BoardIds(enum.IntEnum):
 
 '''
 Collecting raw EEG with Ultracortex headset
-Ubuntu serial port --> '/dev/ttyUSB0' (https://docs.openbci.com/GettingStarted/Boards/CytonGS/)
+Ubuntu serial port --> 'COM3' (https://docs.openbci.com/GettingStarted/Boards/CytonGS/)
 Cyton Board ID--> 0 (8 channels)
 '''
 parser = argparse.ArgumentParser()
 parser.add_argument('--serial-port', type=str, 
-        help='serial port', required=False, default='/dev/tty.Bluetooth-Incoming-Port')
-parser.add_argument('--board-id', type=int, 
+        help='serial port', required=False, default='COM3')
+parser.add_argument('--board-id', type=int,
         help='board id, check docs to get a list of supported boards', required=False, default=1)
 args = parser.parse_args()
 
@@ -106,11 +106,11 @@ board.release_session()
 Data extraction: 24 channels in total--EEG (8 channels)
 '''
 eeg_channels = BoardShim.get_eeg_channels(args.board_id)
-eeg_names = BoardShim.get_eeg_names(args.board_id)
-
+print(eeg_channels)
+eeg_raw = BoardShim.get_num_rows(args.board_id)
+print(eeg_raw)
 df = pd.DataFrame(np.transpose(data[:,1:]))
 df_eeg = df[eeg_channels]
-df_eeg.columns = eeg_names
 df_eeg.plot(subplots=True, sharex=True, legend=True)
 plt.legend(loc='lower right')
 plt.show()
@@ -118,6 +118,10 @@ plt.show()
 '''
 Storing CSV with DatafRame and headers
 '''
+data_dir = 'c:\\Users\\Latifah\\Documents\\GitHub\\UltraCortex\\data'
+if not os.path.exists(data_dir):
+    os.makedirs(data_dir)
+
 timestr = time.strftime("%Y%m%d-%H%M%S")
 filename = timestr + '.csv'
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
